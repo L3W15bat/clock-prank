@@ -2,73 +2,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Totally Normal Clock Website</title>
+  <title>Clock Chaos</title>
+
   <style>
     body {
+      margin: 0;
       background: black;
       color: lime;
-      text-align: center;
       font-family: Arial, sans-serif;
-      overflow-x: hidden;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: lime;
+    }
+
+    #start {
+      padding: 20px 35px;
+      font-size: 24px;
+      cursor: pointer;
+      background: lime;
+      color: black;
+      border: none;
+      border-radius: 12px;
     }
 
     #clocks {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 15px;
+      padding: 15px;
     }
 
-    #clocks img {
+    .clock {
       width: 100%;
+      aspect-ratio: 1;
       max-width: 180px;
+      border-radius: 50%;
+      background: white;
+      border: 8px solid orange;
+      position: relative;
+      box-sizing: border-box;
+      margin: auto;
+      animation: spin 4s linear infinite;
     }
 
-    h1 {
-      font-size: 35px;
+    .clock::before {
+      content: "12";
+      position: absolute;
+      top: 8%;
+      left: 43%;
+      color: black;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .clock::after {
+      content: "";
+      position: absolute;
+      width: 5px;
+      height: 65px;
+      background: red;
+      top: 20%;
+      left: 48%;
+      transform-origin: bottom;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #timer {
+      font-size: 30px;
+      color: yellow;
     }
   </style>
 </head>
+
 <body>
 
-<h1>🕒 TIME IS RUNNING OUT 🕒</h1>
-<h2 id="timer">30 seconds remaining</h2>
+<h1>🕒 CLOCK CHAOS 🕒</h1>
+
+<button id="start">START THE CLOCKS</button>
+
+<h2 id="timer"></h2>
 
 <div id="clocks"></div>
 
 <script>
+  const start = document.getElementById("start");
   const clocks = document.getElementById("clocks");
   const timer = document.getElementById("timer");
 
-  const clockImages = [
-    "https://placehold.co/180x180/222/fff?text=CLOCK+1",
-    "https://placehold.co/180x180/333/fff?text=CLOCK+2",
-    "https://placehold.co/180x180/444/fff?text=CLOCK+3",
-    "https://placehold.co/180x180/555/fff?text=CLOCK+4"
-  ];
+  start.addEventListener("click", async () => {
 
-  let seconds = 30;
-
-  const prank = setInterval(() => {
-    clocks.innerHTML = "";
-
-    for (let i = 0; i < 16; i++) {
-      const img = document.createElement("img");
-      img.src = clockImages[
-        Math.floor(Math.random() * clockImages.length)
-      ];
-      img.alt = "Harmless clock image";
-      clocks.appendChild(img);
+    // Ask the browser for full-screen mode.
+    if (document.documentElement.requestFullscreen) {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (error) {
+        console.log("Fullscreen was not available.");
+      }
     }
 
-    seconds--;
+    start.style.display = "none";
+
+    let seconds = 30;
+
+    function showClocks() {
+      clocks.innerHTML = "";
+
+      for (let i = 0; i < 16; i++) {
+        const clock = document.createElement("div");
+        clock.className = "clock";
+        clocks.appendChild(clock);
+      }
+    }
+
+    showClocks();
+
     timer.textContent = seconds + " seconds remaining";
 
-    if (seconds <= 0) {
-      clearInterval(prank);
-      clocks.innerHTML = "";
-      timer.textContent = "😂 YOU HAVE BEEN CLOCKED!";
-    }
-  }, 1000);
+    const interval = setInterval(() => {
+      seconds--;
+
+      timer.textContent =
+        seconds + " seconds remaining";
+
+      showClocks();
+
+      if (seconds <= 0) {
+        clearInterval(interval);
+
+        clocks.innerHTML = "";
+        timer.textContent = "😂 YOU HAVE BEEN CLOCKED!";
+
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
+
+    }, 1000);
+
+  }, { once: true });
 </script>
 
 </body>
